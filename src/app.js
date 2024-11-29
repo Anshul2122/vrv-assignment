@@ -30,7 +30,11 @@ app.use((req, res, next) => {
 });
 
 
-//Routes
+// import Routes
+import userRoute from "./routes/user.route.js";
+import noteRoute from "./routes/note.route.js";
 
-
+//routes declaration
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/note", noteRoute);
 export {app};

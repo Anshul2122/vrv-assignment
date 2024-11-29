@@ -3,6 +3,7 @@ import {ApiError} from "../utils/ApiError.js";
 import {User} from "../models/user.model.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
+import {isValidObjectId} from "mongoose";
 
 
 const generateAccessAndRefreshTokens = async (userId)=>{
@@ -22,7 +23,7 @@ const generateAccessAndRefreshTokens = async (userId)=>{
 }
 
 const registerUser = asyncHandler(async (req, res, next)=>{
-    const {email, username, password} = req.body;
+    const {email, username, password, role} = req.body;
     if([username, email, password].some((field)=> field?.trim()==="")){
         throw new ApiError(400, "all fields are required");
     }
@@ -45,6 +46,7 @@ const registerUser = asyncHandler(async (req, res, next)=>{
         username:username.toLowerCase(),
         password,
         avatar:avatar.url,
+        role
     });
 
     const createdUser = await User.findById(user._id).select(("-password -refreshToken"));
@@ -197,6 +199,16 @@ const updateUserAvatar = asyncHandler(async (req, res,next) => {
     return res.status(200).json(new ApiResponse(200, user, "avatar image updated successfully!!"));
 });
 
+const deleteUser = asyncHandler(async (req, res,next)=>{
+    const {id} = req.params;
+    if(!isValidObjectId(id)){
+        throw new ApiError(401, "ID is invalid");
+    }
+    const user = await User.findByIdAndDelete(id);
+    if(!user){
+        throw new ApiError(401, "user does not exist");
+    }
+    return res.status(200).json(new ApiResponse(200, {}, "user deleted successfully"));
+})
 
-
-export {registerUser,  loginUser, logOutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar}
+export {registerUser,  loginUser, logOutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, deleteUser}

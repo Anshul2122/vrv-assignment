@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema(
         notes:{
             type: Mongoose.Schema.Types.ObjectId,
             ref:"Note"
+        },
+        role:{
+            type: String,
+            enum: ['admin', 'user', 'moderator'],
+            default: 'User',
+            trim: true
         }
     },
     {timestamps: true}
